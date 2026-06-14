@@ -872,18 +872,21 @@ async function carregarDoJSONBin() {
         });
         const json = await resposta.json();
         
-        // Verifica se os dados chegaram
-        if (json.record && json.record.pix) {
-            DB_PIX = json.record.pix;
-            DB_CARTAO = json.record.cartao;
-            console.log("Dados carregados do JSONBin:", json.record);
-        }
+        // FORÇA a atualização das variáveis globais
+        window.DB_PIX = json.record.pix;
+        window.DB_CARTAO = json.record.cartao;
+        
+        console.log("Dados carregados com sucesso!");
     } catch (error) {
         console.error("Erro na leitura:", error);
     }
     
-    // Isso aqui desenha os números na tela
-    processingEngine(); 
+    // Roda o motor de processamento usando as variáveis globais
+    if (typeof processingEngine === 'function') {
+        processingEngine();
+    } else {
+        console.error("Erro: A função processingEngine não foi encontrada.");
+    }
 }
 
 // Inicia o carregamento
