@@ -861,24 +861,32 @@
             document.getElementById('regPctBirigui').innerText = pctBirigui.toFixed(1) + '%';
             document.getElementById('regDeveriaBirigui').innerHTML = `Alvo Hoje: <b style="color:#fff;">${formatFinancial(deveriaBirigui)}</b>`;
         }
-
-        processingEngine();
-   // --- CONFIGURAÇÃO JSONBIN ---
+// --- CONFIGURAÇÃO JSONBIN ---
 const BIN_ID = "6a2f3682f5f4af5e29f21e54"; 
-const MASTER_KEY = "COLE_SUA_API_KEY_AQUI"; // <--- COLE SUA CHAVE AQUI
+const MASTER_KEY = "COLE_AQUI_A_SUA_KEY"; // <--- COLE SUA CHAVE API AQUI
 
 // Função para salvar no JSONBin
 async function salvarNoJSONBin(dadosParaSalvar) {
-    await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}`, {
-        method: 'PUT',
-        headers: {
-            "Content-Type": "application/json",
-            "X-Master-Key": MASTER_KEY
-        },
-        body: JSON.stringify(dadosParaSalvar)
-    });
-    console.log("Dados salvos no JSONBin com sucesso!");
+    try {
+        await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}`, {
+            method: 'PUT',
+            headers: {
+                "Content-Type": "application/json",
+                "X-Master-Key": MASTER_KEY
+            },
+            body: JSON.stringify(dadosParaSalvar)
+        });
+        console.log("Dados salvos no JSONBin com sucesso!");
+    } catch (error) {
+        console.error("Erro ao salvar no JSONBin:", error);
+    }
 }
+
+// --- INTEGRAÇÃO NO SEU CÓDIGO ---
+// Substitua o trecho final onde você tem o "processingEngine();" por este abaixo:
+
+salvarNoJSONBin({ pix: DB_PIX, cartao: DB_CARTAO });
+processingEngine();
 </script>
 </body>
 </html>
