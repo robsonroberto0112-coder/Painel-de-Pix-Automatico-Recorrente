@@ -886,35 +886,55 @@
 const BIN_ID = "6a2f3682f5f4af5e29f21e54"; 
 const MASTER_KEY = "$2a$10$.Q3fSgvEBwW19uQlxzH8.uuF/JplRD/HVClado7Jsk1pMKZBl1/gC"; 
 
-async function carregarDoJSONBin() {
+async function salvarNoJSONBin(dadosPix, dadosCartao) {
     try {
-        const resposta = await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}/latest`, {
-            method: 'GET',
-            headers: { "X-Master-Key": MASTER_KEY }
+        await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}`, {
+            method: 'PUT',
+            headers: { "Content-Type": "application/json", "X-Master-Key": MASTER_KEY },
+            body: JSON.stringify({ pix: dadosPix, cartao: dadosCartao })
         });
-        const json = await resposta.json();
-        
-        if (json.record) {
-            window.DB_PIX = json.record.pix || [];
-            window.DB_CARTAO = json.record.cartao || [];
-            console.log("Dados carregados!");
-        }
-    } catch (error) {
-        console.error("Erro na leitura:", error);
-    }
-    
-    if (typeof processingEngine === 'function') {
-        processingEngine();
-    }
+        console.log("Dados salvos com sucesso!");
+    } catch (e) { console.error("Erro ao salvar:", e); }
 }
 
-// Inicia o carregamento
-carregarDoJSONBin();
+async function carregarDoJSONBin() {
+    try {
+        const res = await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}/latest`, {
+            headers: { "X-Master-Key": MASTER_KEY }
+        });
+        const json = await res.json();
+        window.DB_PIX = json.record.pix || [];
+        window.DB_CARTAO = json.record.cartao || [];
+        if (typeof processingEngine === 'function') processingEngine();
+    } catch (e) { console.error("Erro ao carregar:", e); }
+}
 
-// FECHANDO AS CHAVES DE SEGURANÇA
-</script>
-</body>
-</html>
-</script>
+function triggerImport(e, mode) {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = function(evt) {
+        const workbook = XLSX.read(evt.target.result, { type: 'binary' });
+        const rawRows = XLSX.utils.sheet_to_json(workbook.Sheets[workbook.SheetNames[0]], { header: 1 });
+        
+        let mapping = {
+            "Play 1": {q:0, v:0, p:0, bruto:0, parcela:0}, "Play 2": {q:0, v:0, p:0, bruto:0, parcela:0},
+            "Play 3": {q:0, v:0, p:0, bruto:0, parcela:0}, "Play 4": {q:0, v:0, p:0, bruto:0, parcela:0},
+            "Play 5": {q:0, v:0, p:0, bruto:0, parcela:0}, "Play 6": {q:0, v:0, p:0, bruto:0, parcela:0},
+            "Receptivo": {q:0, v:0, p:0, bruto:0, parcela:0}, "Play Mix": {q:0, v:0, p:0, bruto:0, parcela:0}
+        };
+
+        // ... (seu código de processamento que estava aqui) ...
+
+        if (mode === 'pix') window.DB_PIX = mapping;
+        else window.DB_CARTAO = mapping;
+
+        salvarNoJSONBin(window.DB_PIX, window.DB_CARTAO);
+        processingEngine();
+    };
+    reader.readAsBinaryString(file);
+}
+
+window.addEventListener('load', carregarDoJSONBin);
 </body>
 </html>
