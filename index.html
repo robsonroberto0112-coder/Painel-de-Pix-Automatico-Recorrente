@@ -869,16 +869,23 @@ async function carregarDoJSONBin() {
                 "X-Master-Key": MASTER_KEY
             }
         });
+        
+        if (!resposta.ok) throw new Error("Erro na conexão com JSONBin");
+        
         const json = await resposta.json();
         
-        // Atualiza suas variáveis globais com os dados salvos
-        DB_PIX = json.record.pix;
-        DB_CARTAO = json.record.cartao;
+        // Verifica se os dados existem antes de atribuir
+        if (json.record) {
+            DB_PIX = json.record.pix || [];
+            DB_CARTAO = json.record.cartao || [];
+            console.log("Dados carregados com sucesso!");
+        }
         
-        console.log("Dados carregados do JSONBin!");
-        processingEngine(); // Atualiza a tela com os dados carregados
+        processingEngine(); // Atualiza a tela
     } catch (error) {
-        console.error("Erro ao carregar dados:", error);
+        console.error("Não foi possível carregar os dados:", error);
+        // Se der erro, ele continua funcionando com valores vazios em vez de travar
+        processingEngine(); 
     }
 }
 </script>
