@@ -860,34 +860,29 @@
             document.getElementById('regQtdBirigui').innerText = qtdBirigui.toLocaleString('pt-BR');
             document.getElementById('regPctBirigui').innerText = pctBirigui.toFixed(1) + '%';
             document.getElementById('regDeveriaBirigui').innerHTML = `Alvo Hoje: <b style="color:#fff;">${formatFinancial(deveriaBirigui)}</b>`;
-// Função para ler os dados do JSONBin ao abrir o site
+// --- CONFIGURAÇÃO JSONBIN ---
+const BIN_ID = "6a2f3682f5f4af5e29f21e54"; 
+const MASTER_KEY = "COLE_SUA_KEY_AQUI"; 
+
 async function carregarDoJSONBin() {
     try {
         const resposta = await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}/latest`, {
             method: 'GET',
-            headers: {
-                "X-Master-Key": MASTER_KEY
-            }
+            headers: { "X-Master-Key": MASTER_KEY }
         });
-        
-        if (!resposta.ok) throw new Error("Erro na conexão com JSONBin");
-        
         const json = await resposta.json();
-        
-        // Verifica se os dados existem antes de atribuir
-        if (json.record) {
-            DB_PIX = json.record.pix || [];
-            DB_CARTAO = json.record.cartao || [];
-            console.log("Dados carregados com sucesso!");
-        }
-        
-        processingEngine(); // Atualiza a tela
+        DB_PIX = json.record.pix || [];
+        DB_CARTAO = json.record.cartao || [];
+        console.log("Dados carregados!");
     } catch (error) {
-        console.error("Não foi possível carregar os dados:", error);
-        // Se der erro, ele continua funcionando com valores vazios em vez de travar
-        processingEngine(); 
+        console.log("JSONBin offline, usando dados locais.");
     }
+    // ESTA LINHA É A QUE FAZ O PAINEL APARECER:
+    processingEngine(); 
 }
+
+// Inicia o sistema
+carregarDoJSONBin();
 </script>
 </body>
 </html>
