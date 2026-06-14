@@ -864,6 +864,24 @@
 const BIN_ID = "6a2f3682f5f4af5e29f21e54"; 
 const MASTER_KEY = "$2a$10$.Q3fSgvEBwW19uQlxzH8.uuF/JplRD/HVClado7Jsk1pMKZBl1/gC"; 
 
+// 1. FUNÇÃO PARA SALVAR (Você deve chamar esta função após calcular os novos dados)
+async function salvarNoJSONBin(dadosPix, dadosCartao) {
+    try {
+        const resposta = await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}`, {
+            method: 'PUT',
+            headers: {
+                "Content-Type": "application/json",
+                "X-Master-Key": MASTER_KEY
+            },
+            body: JSON.stringify({ pix: dadosPix, cartao: dadosCartao })
+        });
+        console.log("Dados salvos no JSONBin!");
+    } catch (error) {
+        console.error("Erro ao salvar:", error);
+    }
+}
+
+// 2. FUNÇÃO PARA CARREGAR (Ao abrir o site)
 async function carregarDoJSONBin() {
     try {
         const resposta = await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}/latest`, {
@@ -880,19 +898,11 @@ async function carregarDoJSONBin() {
     } catch (error) {
         console.error("Erro na leitura:", error);
     }
-    
-    if (typeof processingEngine === 'function') {
-        processingEngine();
-    }
+    if (typeof processingEngine === 'function') processingEngine();
 }
 
-// Inicia o carregamento
+// 3. INICIA AO ABRIR
 carregarDoJSONBin();
-
-// FECHANDO AS CHAVES DE SEGURANÇA
-</script>
-</body>
-</html>
 </script>
 </body>
 </html>
