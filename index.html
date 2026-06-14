@@ -863,6 +863,34 @@
         }
 
         processingEngine();
-    </script>
+    <script>
+  const BIN_ID = "COLE_SEU_BIN_ID_AQUI";
+  const MASTER_KEY = "COLE_SUA_MASTER_KEY_AQUI";
+
+  // Função para carregar o número quando o site abrir
+  async function carregarDados() {
+    const resposta = await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}/latest`, {
+      headers: { "X-Master-Key": MASTER_KEY }
+    });
+    const dados = await resposta.json();
+    document.getElementById("seu-campo-de-numero").innerText = dados.record.numeros;
+  }
+
+  // Função para salvar (chame essa função quando clicar no botão salvar)
+  async function salvarNovoNumero(novoValor) {
+    await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}`, {
+      method: 'PUT',
+      headers: { 
+        "Content-Type": "application/json",
+        "X-Master-Key": MASTER_KEY 
+      },
+      body: JSON.stringify({ numeros: novoValor })
+    });
+    alert("Número salvo!");
+  }
+
+  // Chama a função ao carregar a página
+  carregarDados();
+</script>
 </body>
 </html>
