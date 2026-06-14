@@ -860,7 +860,7 @@
             document.getElementById('regQtdBirigui').innerText = qtdBirigui.toLocaleString('pt-BR');
             document.getElementById('regPctBirigui').innerText = pctBirigui.toFixed(1) + '%';
             document.getElementById('regDeveriaBirigui').innerHTML = `Alvo Hoje: <b style="color:#fff;">${formatFinancial(deveriaBirigui)}</b>`;
-// --- CONFIGURAÇÃO JSONBIN ---
+// --- CONFIGURAÇÃO ---
 const BIN_ID = "6a2f3682f5f4af5e29f21e54"; 
 const MASTER_KEY = "COLE_SUA_KEY_AQUI"; 
 
@@ -871,17 +871,22 @@ async function carregarDoJSONBin() {
             headers: { "X-Master-Key": MASTER_KEY }
         });
         const json = await resposta.json();
-        DB_PIX = json.record.pix || [];
-        DB_CARTAO = json.record.cartao || [];
-        console.log("Dados carregados!");
+        
+        // Verifica se os dados chegaram
+        if (json.record && json.record.pix) {
+            DB_PIX = json.record.pix;
+            DB_CARTAO = json.record.cartao;
+            console.log("Dados carregados do JSONBin:", json.record);
+        }
     } catch (error) {
-        console.log("JSONBin offline, usando dados locais.");
+        console.error("Erro na leitura:", error);
     }
-    // ESTA LINHA É A QUE FAZ O PAINEL APARECER:
+    
+    // Isso aqui desenha os números na tela
     processingEngine(); 
 }
 
-// Inicia o sistema
+// Inicia o carregamento
 carregarDoJSONBin();
 </script>
 </body>
