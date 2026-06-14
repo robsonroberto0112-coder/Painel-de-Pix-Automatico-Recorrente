@@ -872,25 +872,27 @@ async function carregarDoJSONBin() {
         });
         const json = await resposta.json();
         
-        // FORÇA a atualização das variáveis globais
-        window.DB_PIX = json.record.pix;
-        window.DB_CARTAO = json.record.cartao;
-        
-        console.log("Dados carregados com sucesso!");
+        if (json.record) {
+            window.DB_PIX = json.record.pix || [];
+            window.DB_CARTAO = json.record.cartao || [];
+            console.log("Dados carregados!");
+        }
     } catch (error) {
         console.error("Erro na leitura:", error);
     }
     
-    // Roda o motor de processamento usando as variáveis globais
     if (typeof processingEngine === 'function') {
         processingEngine();
-    } else {
-        console.error("Erro: A função processingEngine não foi encontrada.");
     }
 }
 
 // Inicia o carregamento
 carregarDoJSONBin();
+
+// FECHANDO AS CHAVES DE SEGURANÇA
+</script>
+</body>
+</html>
 </script>
 </body>
 </html>
