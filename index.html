@@ -860,33 +860,27 @@
             document.getElementById('regQtdBirigui').innerText = qtdBirigui.toLocaleString('pt-BR');
             document.getElementById('regPctBirigui').innerText = pctBirigui.toFixed(1) + '%';
             document.getElementById('regDeveriaBirigui').innerHTML = `Alvo Hoje: <b style="color:#fff;">${formatFinancial(deveriaBirigui)}</b>`;
-        }
-// --- CONFIGURAÇÃO JSONBIN ---
-const BIN_ID = "6a2f3682f5f4af5e29f21e54"; 
-const MASTER_KEY = "COLE_AQUI_A_SUA_KEY"; // <--- COLE SUA CHAVE API AQUI
-
-// Função para salvar no JSONBin
-async function salvarNoJSONBin(dadosParaSalvar) {
+// Função para ler os dados do JSONBin ao abrir o site
+async function carregarDoJSONBin() {
     try {
-        await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}`, {
-            method: 'PUT',
+        const resposta = await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}/latest`, {
+            method: 'GET',
             headers: {
-                "Content-Type": "application/json",
                 "X-Master-Key": MASTER_KEY
-            },
-            body: JSON.stringify(dadosParaSalvar)
+            }
         });
-        console.log("Dados salvos no JSONBin com sucesso!");
+        const json = await resposta.json();
+        
+        // Atualiza suas variáveis globais com os dados salvos
+        DB_PIX = json.record.pix;
+        DB_CARTAO = json.record.cartao;
+        
+        console.log("Dados carregados do JSONBin!");
+        processingEngine(); // Atualiza a tela com os dados carregados
     } catch (error) {
-        console.error("Erro ao salvar no JSONBin:", error);
+        console.error("Erro ao carregar dados:", error);
     }
 }
-
-// --- INTEGRAÇÃO NO SEU CÓDIGO ---
-// Substitua o trecho final onde você tem o "processingEngine();" por este abaixo:
-
-salvarNoJSONBin({ pix: DB_PIX, cartao: DB_CARTAO });
-processingEngine();
 </script>
 </body>
 </html>
