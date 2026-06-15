@@ -420,13 +420,13 @@
 
     <header>
         <div class="brand-container">
-            <img src="https://pagueplay.com.br/build/images/logo-pagueplay.svg" alt="PaguePlay Logo" class="brand-logo">
-            <div class="brand-divider"></div>
-            <img src="https://i.ibb.co/m5KJY4nB/Logo-do-Bookplay-Vertical-removebg-preview.png" alt="Bookplay Logo" class="brand-logo">
-        </div>
-        <div class="title-area">
-            <h1>Executive Operations Command</h1>
-            <p>Performance Integrada de Recuperação Corporativa Líquida</p>
+    <img src="https://pagueplay.com.br/build/images/logo-pagueplay.svg" alt="PaguePlay Logo" class="brand-logo">
+    <div class="brand-divider"></div>
+    <img src="https://i.ibb.co/m5KJY4nB/Logo-do-Bookplay-Vertical-removebg-preview.png" alt="Bookplay Logo" class="brand-logo">
+</div>
+<div class="title-area">
+    <h1>Executive Operations Command</h1>
+    <p>Performance Integrada de Recuperação Corporativa Líquida</p>
         </div>
     </header>
 
@@ -669,49 +669,27 @@
         }
 
         function triggerImport(e, mode) {
-    const file = e.target.files[0];
-    if (!file) return;
-    const reader = new FileReader();
-    
-    reader.onload = function(evt) {
-        const workbook = XLSX.read(evt.target.result, { type: 'binary' });
-        const rawRows = XLSX.utils.sheet_to_json(workbook.Sheets[workbook.SheetNames[0]], { header: 1 });
-        
-        let mapping = {
-            "Play 1": {q:0, v:0, p:0, bruto:0, parcela:0}, "Play 2": {q:0, v:0, p:0, bruto:0, parcela:0}, "Play 3": {q:0, v:0, p:0, bruto:0, parcela:0},
-            "Play 4": {q:0, v:0, p:0, bruto:0, parcela:0}, "Play 5": {q:0, v:0, p:0, bruto:0, parcela:0}, "Play 6": {q:0, v:0, p:0, bruto:0, parcela:0},
-            "Receptivo": {q:0, v:0, p:0, bruto:0, parcela:0}, "Play Mix": {q:0, v:0, p:0, bruto:0, parcela:0}
-        };
+            const file = e.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function(evt) {
+                const workbook = XLSX.read(evt.target.result, { type: 'binary' });
+                const rawRows = XLSX.utils.sheet_to_json(workbook.Sheets[workbook.SheetNames[0]], { header: 1 });
+                
+                let mapping = {
+                    "Play 1": {q:0, v:0, p:0, bruto:0, parcela:0}, "Play 2": {q:0, v:0, p:0, bruto:0, parcela:0}, "Play 3": {q:0, v:0, p:0, bruto:0, parcela:0},
+                    "Play 4": {q:0, v:0, p:0, bruto:0, parcela:0}, "Play 5": {q:0, v:0, p:0, bruto:0, parcela:0}, "Play 6": {q:0, v:0, p:0, bruto:0, parcela:0},
+                    "Receptivo": {q:0, v:0, p:0, bruto:0, parcela:0}, "Play Mix": {q:0, v:0, p:0, bruto:0, parcela:0}
+                };
 
-        let headerIdx = 0;
-        for (let i = 0; i < Math.min(rawRows.length, 10); i++) {
-            let rowStr = (rawRows[i] || []).join(' ').toLowerCase();
-            if ((rowStr.includes('setor') || rowStr.includes('grupo') || rowStr.includes('origem')) && rowStr.includes('valor')) {
-                headerIdx = i;
-                break;
-            }
-        }
-
-        // --- AQUI ENTRA A LÓGICA QUE VOCÊ JÁ TEM PARA PREENCHER O MAPPING ---
-        // (O código que você já tinha após o loop de headerIdx continua aqui)
-        
-        // Exemplo de atualização das globais (ajuste conforme o seu código original):
-        if (mode === 'pix') {
-            window.DB_PIX = mapping;
-        } else {
-            window.DB_CARTAO = mapping;
-        }
-
-        // --- ADICIONADO: O SALVAMENTO AUTOMÁTICO ---
-        // Toda vez que importar, ele envia para o JSONBin
-        salvarNoJSONBin(window.DB_PIX, window.DB_CARTAO);
-
-        // Atualiza a tela
-        processingEngine();
-    };
-
-    reader.readAsBinaryString(file);
-}
+                let headerIdx = 0;
+                for (let i = 0; i < Math.min(rawRows.length, 10); i++) {
+                    let rowStr = (rawRows[i] || []).join(' ').toLowerCase();
+                    if ((rowStr.includes('setor') || rowStr.includes('grupo') || rowStr.includes('origem')) && rowStr.includes('valor')) {
+                        headerIdx = i;
+                        break;
+                    }
+                }
 
                 const headers = rawRows[headerIdx] || [];
                 let colGrupo = -1;
@@ -882,73 +860,9 @@
             document.getElementById('regQtdBirigui').innerText = qtdBirigui.toLocaleString('pt-BR');
             document.getElementById('regPctBirigui').innerText = pctBirigui.toFixed(1) + '%';
             document.getElementById('regDeveriaBirigui').innerHTML = `Alvo Hoje: <b style="color:#fff;">${formatFinancial(deveriaBirigui)}</b>`;
-<script>
-<!DOCTYPE html>
-<html lang="pt-BR">
-<head>
-    <meta charset="UTF-8">
-    <title>PaguePlay & Bookplay - Executive Intelligence</title>
-    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
-    <style>
-        /* (Mantenha todo o seu CSS original aqui dentro) */
-    </style>
-</head>
-<body>
-    <script>
-        const BIN_ID = "6a2f4220da38895dfec0c011";
-        const MASTER_KEY = "$2a$10$.Q3fSgvEBwW19uQlxzH8.uuF/JplRD/HVClado7Jsk1pMKZBl1/gC";
-
-        // Variáveis Globais
-        let DB_PIX = [];
-        let DB_CARTAO = [];
-        const metasOficiais = { "Play 1": 1457680.00, "Play 2": 1081750.00, "Play 3": 1502490.00, "Play 4": 73086.00, "Play 5": 337770.00, "Play 6": 208884.00, "Receptivo": 796168.00, "Play Mix": 291392.00 };
-        let META_GLOBAL_CONVERTIDA = 3000000.00;
-
-        // Funções de Conexão
-        async function carregarDoJSONBin() {
-            try {
-                const res = await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}/latest`, { headers: { "X-Master-Key": MASTER_KEY } });
-                const json = await res.json();
-                DB_PIX = json.record.pix || [];
-                DB_CARTAO = json.record.cartao || [];
-                processingEngine();
-            } catch (e) { console.error("Erro ao carregar:", e); }
         }
 
-        async function salvarNoJSONBin(dPix, dCartao) {
-            try {
-                await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}`, {
-                    method: 'PUT',
-                    headers: { "Content-Type": "application/json", "X-Master-Key": MASTER_KEY },
-                    body: JSON.stringify({ pix: dPix, cartao: dCartao })
-                });
-            } catch (e) { console.error("Erro ao salvar:", e); }
-        }
-
-        // Motor de Processamento
-        function processingEngine() {
-            const dp = parseFloat(document.getElementById('inputDiasPassados').value) || 1;
-            const dt = parseFloat(document.getElementById('inputDiasTotais').value) || 21;
-            // ... (coloque aqui todo o seu código de lógica de preenchimento de tabelas que você já tem) ...
-        }
-
-        // Importação
-        function triggerImport(e, mode) {
-            const file = e.target.files[0];
-            if (!file) return;
-            const reader = new FileReader();
-            reader.onload = function(evt) {
-                // ... (coloque aqui a lógica de leitura do XLSX que você já tem) ...
-                salvarNoJSONBin(DB_PIX, DB_CARTAO);
-                processingEngine();
-            };
-            reader.readAsBinaryString(file);
-        }
-
-        // Inicialização
-        window.addEventListener('load', carregarDoJSONBin);
-        document.getElementById('uploadPix').addEventListener('change', (e) => triggerImport(e, 'pix'));
-        document.getElementById('uploadRecorrente').addEventListener('change', (e) => triggerImport(e, 'cartao'));
+        processingEngine();
     </script>
 </body>
 </html>
