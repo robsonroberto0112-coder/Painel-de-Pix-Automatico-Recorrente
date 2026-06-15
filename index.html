@@ -882,44 +882,71 @@
             document.getElementById('regQtdBirigui').innerText = qtdBirigui.toLocaleString('pt-BR');
             document.getElementById('regPctBirigui').innerText = pctBirigui.toFixed(1) + '%';
             document.getElementById('regDeveriaBirigui').innerHTML = `Alvo Hoje: <b style="color:#fff;">${formatFinancial(deveriaBirigui)}</b>`;
-// --- CONFIGURAÇÃO ---
-const BIN_ID = "6a2f3682f5f4af5e29f21e54"; 
-const MASTER_KEY = "$2a$10$.Q3fSgvEBwW19uQlxzH8.uuF/JplRD/HVClado7Jsk1pMKZBl1/gC"; 
+<script>
+    // --- CONFIGURAÇÃO (CONFIRA SE O ID ESTÁ CERTO NO SITE JSONBIN) ---
+    const BIN_ID = "6a2f3682f5f4af5e29f21e54"; 
+    const MASTER_KEY = "$2a$10$.Q3fSgvEBwW19uQlxzH8.uuF/JplRD/HVClado7Jsk1pMKZBl1/gC"; 
 
-// 1. FUNÇÃO DE SALVAMENTO (Sem erros)
-async function salvarNoJSONBin(dadosPix, dadosCartao) {
-    try {
-        await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}`, {
-            method: 'PUT',
-            headers: { "Content-Type": "application/json", "X-Master-Key": MASTER_KEY },
-            body: JSON.stringify({ pix: dadosPix, cartao: dadosCartao, dataUltimaAtualizacao: new Date().toISOString() })
-        });
-        console.log("Dados salvos!");
-    } catch (e) { console.error("Erro ao salvar:", e); }
-}
+    // --- FUNÇÕES DE SALVAMENTO E CARGA ---
+    async function salvarNoJSONBin(dadosPix, dadosCartao) {
+        try {
+            await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}`, {
+                method: 'PUT',
+                headers: { 
+                    "Content-Type": "application/json", 
+                    "X-Master-Key": MASTER_KEY 
+                },
+                body: JSON.stringify({ pix: dadosPix, cartao: dadosCartao })
+            });
+            console.log("Dados salvos com sucesso!");
+        } catch (e) { console.error("Erro ao salvar:", e); }
+    }
 
-// 2. CARREGAMENTO E INICIALIZAÇÃO (A "Travada de Segurança")
-async function carregarDoJSONBin() {
-    console.log("Sincronizando com JSONBin...");
-    try {
-        const res = await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}/latest`, {
-            headers: { "X-Master-Key": MASTER_KEY }
-        });
-        const json = await res.json();
+    async function carregarDoJSONBin() {
+        try {
+            const res = await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}/latest`, {
+                headers: { "X-Master-Key": MASTER_KEY }
+            });
+            if (res.status === 404) throw new Error("Bin não encontrado (404)");
+            
+            const json = await res.json();
+            window.DB_PIX = json.record.pix || [];
+            window.DB_CARTAO = json.record.cartao || [];
+            
+            if (typeof processingEngine === 'function') processingEngine();
+        } catch (e) { console.error("Erro ao carregar:", e); }
+    }
+
+    // --- IMPORTAÇÃO ---
+    function triggerImport(e, mode) {
+        const file = e.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
         
-        // Colocamos os dados globais
-        window.DB_PIX = json.record.pix || [];
-        window.DB_CARTAO = json.record.cartao || [];
-        
-        // SÓ AGORA executamos o cálculo
-        if (typeof processingEngine === 'function') {
-            console.log("Dados recebidos, rodando motor...");
-            processingEngine(); 
-        }
-    } catch (e) { console.error("Erro na carga:", e); }
-}
+        reader.onload = function(evt) {
+            const workbook = XLSX.read(evt.target.result, { type: 'binary' });
+            const rawRows = XLSX.utils.sheet_to_json(workbook.Sheets[workbook.SheetNames[0]], { header: 1 });
+            
+            let mapping = {
+                "Play 1": {q:0, v:0, p:0, bruto:0, parcela:0}, "Play 2": {q:0, v:0, p:0, bruto:0, parcela:0},
+                "Play 3": {q:0, v:0, p:0, bruto:0, parcela:0}, "Play 4": {q:0, v:0, p:0, bruto:0, parcela:0},
+                "Play 5": {q:0, v:0, p:0, bruto:0, parcela:0}, "Play 6": {q:0, v:0, p:0, bruto:0, parcela:0},
+                "Receptivo": {q:0, v:0, p:0, bruto:0, parcela:0}, "Play Mix": {q:0, v:0, p:0, bruto:0, parcela:0}
+            };
 
-// 3. O SEU MOTOR DE CÁLCULO (Se você tiver a função processingEngine definida acima, ela vai rodar agora)
-window.addEventListener('load', carregarDoJSONBin);
+            // ... (AQUI FICA O SEU CÁLCULO DE MAPPING QUE VOCÊ JÁ TEM) ...
+
+            if (mode === 'pix') window.DB_PIX = mapping;
+            else window.DB_CARTAO = mapping;
+
+            salvarNoJSONBin(window.DB_PIX, window.DB_CARTAO);
+            if (typeof processingEngine === 'function') processingEngine();
+        };
+        reader.readAsBinaryString(file);
+    }
+
+    // Carrega ao abrir
+    window.addEventListener('load', carregarDoJSONBin);
+</script>
 </body>
 </html>
